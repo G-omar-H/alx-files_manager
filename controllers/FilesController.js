@@ -14,18 +14,22 @@ class FilesController {
     const user = await dbClient.db.collection('users').findOne({ _id: userId });
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
 
-    let {
+    const {
       name, type, parentId, isPublic, data,
     } = req.body;
     if (!name) return res.status(400).json({ error: 'Missing name' });
-    if (!type || type !== 'folder' | 'file' | 'image') {
+    if (!type
+        || (type !== 'folder'
+        && type !== 'file'
+        && type !== 'image')) {
       return res.status(400).json({ error: 'Missing type' });
     }
+    let parentObjectId = parentId;
     if (!parentId) {
-      parentId = 0;
+      parentObjectId = 0;
     } else {
-      parentId = new ObjectID(parentId);
-      const file = dbClient.db.collection('files').findOne({ _id: parentId });
+      parentObjectId = new ObjectID(parentId);
+      const file = dbClient.db.collection('files').findOne({ _id: parentObjectId });
       if (!file) {
         return res.status(400).json({ error: 'Parent not found' });
       } if (file.type !== 'folder') {
@@ -45,7 +49,7 @@ class FilesController {
         name,
         type,
         isPublic,
-        parentId,
+        parentObjectId,
         localPath,
       });
 
@@ -59,7 +63,7 @@ class FilesController {
       name,
       type,
       isPublic,
-      parentId,
+      parentObjectId,
       localPath: filePath,
     });
 
