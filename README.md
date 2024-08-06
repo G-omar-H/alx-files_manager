@@ -10,9 +10,8 @@ Welcome to the **Files Manager** project! This advanced task integrates key conc
 - **File Viewing**: Access and view files.
 - **Thumbnail Generation**: Create image thumbnails.
 
-### 👥 Team
+### 👥 Author
 - **Ghazi Omar**
-- **Redouane Drihmia**
 
 ### 📅 Project Timeline
 - **Start Date**: August 1, 2024, 4:00 AM
