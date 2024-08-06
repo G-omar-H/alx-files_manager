@@ -44,17 +44,17 @@ class FilesController {
       fs.mkdirSync(localPath, { recursive: true });
     }
     if (type === 'folder') {
-      await dbClient.db.collection('files').insertOne({
+    const folder = {
         userId,
         name,
         type,
         isPublic,
-        parentObjectId,
+        parentId: parentObjectId,
         localPath,
-      });
+      };
+      await dbClient.db.collection('files').insertOne(folder);
 
-      const contentType = mime.contentType(localPath);
-      return res.status(201).setHeader('Content-Type', contentType).sendFile(localPath);
+      return res.status(201).json(folder);
     }
     const filePath = `${localPath}/${uuidv4()}`;
     fs.writeFileSync(filePath, Buffer.from(data, 'base64'));
@@ -63,7 +63,7 @@ class FilesController {
       name,
       type,
       isPublic,
-      parentObjectId,
+      parentId: parentObjectId,
       localPath: filePath,
     });
 
