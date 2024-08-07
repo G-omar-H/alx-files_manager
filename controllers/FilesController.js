@@ -54,7 +54,7 @@ class FilesController {
     return res.status(201).json({ id: newFile.insertedId, ...fileData });
   }
 
-  static async getshow(req, res) {
+  static async getShow(req, res) {
     const givenTok = `auth_${req.header('X-Token')}`;
 
     const userId = await redisClient.get(givenTok);
@@ -63,7 +63,7 @@ class FilesController {
     const givenId = req.query.id;
 
     const file = await dbClient.db.collection('files').findOne({ id: givenId, userId });
-    if (!file) res.status(404).json({ error: 'Not found' });
+    if (!file) return res.status(404).json({ error: 'Not found' });
 
     return res.json(file);
   }
@@ -80,15 +80,14 @@ class FilesController {
 
     const pageNumber = parseInt(page, 10);
 
-    const file = await dbClient.db.collection('files').findOne({ parentId });
+    const file = await dbClient.db.collection('files').findOne({ parentId: parentObejctId });
     if (!file) return res.json([]);
 
-    const content = dbClient.collection('files').aggregate([
-      { $matche: { parentId: parentObejctId } },
+    const content = await dbClient.db.collection('files').aggregate([
+      { $match: { parentId: parentObejctId } },
       { $skip: pageNumber * 20 },
       { $limit: 20 },
     ]).toArray();
-
     return res.json(content);
   }
 }
