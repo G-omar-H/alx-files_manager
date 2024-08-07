@@ -1,10 +1,11 @@
+
 {
   "name": "files_manager",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "lint": "./node_modules/.bin/eslint --fix",
+    "lint": "./node_modules/.bin/eslint",
     "check-lint": "lint [0-9]*.js",
     "start-server": "nodemon --exec babel-node --presets @babel/preset-env ./server.js",
     "start-worker": "nodemon --exec babel-node --presets @babel/preset-env ./worker.js",
@@ -42,3 +43,4 @@
     "sinon": "^7.5.0"
   }
 }
+
