@@ -24,7 +24,7 @@ class FilesController {
     if (!type || !['folder', 'file', 'image'].includes(type)) return res.status(400).json({ error: 'Missing type' });
     if (!data && type !== 'folder') return res.status(400).json({ error: 'Missing data' });
 
-    const parentObjectId = parentId !== '0' ? new ObjectID(parentId) : 0;
+    const parentObjectId = parentId !== '0' ? new ObjectID(parentId) : '0';
 
     if (parentId !== '0') {
       const parentFile = await dbClient.db.collection('files').findOne({ _id: parentObjectId });
@@ -46,14 +46,14 @@ class FilesController {
     }
 
     const localPath = process.env.FOLDER_PATH || '/tmp/files_manager';
-    if (!fs.existsSync(localPath)) fs.mkdirSync(localPath, { recursive: true });
+    if (!fs.existsSync(localPath)) await fs.mkdirSync(localPath, { recursive: true });
 
     const filePath = path.join(localPath, uuidv4());
-    fs.writeFileSync(filePath, Buffer.from(data, 'base64'));
+    await fs.writeFileSync(filePath, Buffer.from(data, 'base64'));
 
     const newFile = await dbClient.db.collection('files').insertOne({ ...fileData, localPath: filePath });
 
-    return res.status(201).json({ id: newFile.insertedId, ...fileData, localPath: filePath });
+    return res.status(201).json({ id: newFile.insertedId, ...fileData });
   }
 
   static async getShow(req, res) {
