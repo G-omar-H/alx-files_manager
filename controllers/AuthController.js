@@ -5,7 +5,7 @@ import dbClient from '../utils/db';
 
 class AuthController {
   static async getConnect(req, res) {
-    const base64CodedString = req.get('Authorization').split(' ')[1];
+    const base64CodedString = req.header('Authorization').split(' ')[1];
     const [email, password] = Buffer.from(base64CodedString, 'base64').toString('utf-8').split(':');
     const hashdPwd = sha1(password);
     const user = await dbClient.db.collection('users').findOne({ email });
