@@ -59,19 +59,16 @@ class FilesController {
     const filePath = path.join(localPath, uuidv4());
     await fs.writeFileSync(filePath, Buffer.from(data, 'base64'));
 
-    
     const newFile = await dbClient.db.collection('files').insertOne({ ...fileData, localPath: filePath });
-    
-    if (newFile.type === 'image') {
 
+    if (newFile.type === 'image') {
       fileQueue.add({
 
         fileId: newFile.id,
-        userId: newFile.userId
+        userId: newFile.userId,
       });
+    }
 
-    };
-    
     return res.status(201).json({
       id: newFile.insertedId,
       userId: fileData.userId,
@@ -172,8 +169,8 @@ class FilesController {
     const userId = await redisClient.get(givenTok);
 
     const givenId = req.params.id;
-    const size = req.params.size;
-  
+    const { size } = req.params;
+
     const file = await dbClient.db.collection('files').findOne({
       _id: new ObjectID(givenId),
     });
@@ -185,17 +182,17 @@ class FilesController {
 
     if (file.type === 'folder') return res.status(400).json({ error: 'A folder doesn\'t have content' });
     if (!fs.existsSync(file.localPath)) return res.status(404).json({ error: 'Not found' });
-    
+
+    let filePath = file.localPath;
+
     if (size) {
-
       const thumbnail = `${file.localPath}_${size}`;
-    if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Not found' });
-
-    };
+      filePath = thumbnail;
+      if (!fs.existsSync(thumbnail)) return res.status(404).json({ error: 'Not found' });
+    }
 
     const contentType = mime.contentType(file.name);
-    
-    const filePath = size ? thumbnail : file.localPath;
+
     const data = fs.readFileSync(filePath);
 
     return res.setHeader('Content-Type', contentType).json(Buffer.from(data, 'base64').toString('utf-8').trim(''));
