@@ -5,23 +5,30 @@ import dbClient from '../utils/db';
 
 class AuthController {
   static async getConnect(req, res) {
-    
     const base64CodedString = req.header('Authorization').split(' ')[1];
+
     const [email, password] = Buffer.from(base64CodedString, 'base64').toString('utf-8').split(':');
-    const hashdPwd = sha1(password);
+    if (!email || !password) return res.status(401).json({ error: 'Unauthorized' });
+
     const user = await dbClient.db.collection('users').findOne({ email });
+    const hashdPwd = sha1(password);
+
     if (!user || user.password !== hashdPwd) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
+
     const token = uuidv4();
     redisClient.set(`auth_${token}`, user._id.toString(), 24 * 60 * 60);
+
     return res.status(200).json({ token });
   }
 
   static async getDisconnect(request, response) {
     const token = request.header('X-Token');
     const key = `auth_${token}`;
+
     const id = await redisClient.get(key);
+
     if (id) {
       await redisClient.del(key);
       response.status(204).json({});
