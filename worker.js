@@ -27,6 +27,7 @@ fileQueue.process(async (job, done) => {
     await fs.writeFileSync(`${file.localPath}_250` ,imageThumbnail250);
     await fs.writeFileSync(`${file.localPath}_500` ,imageThumbnail500);
 
+    return done();
 })
 
 module.exports = fileQueue;
